@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frío Cakes</title>
+
+<style>
+:root{
+  --sky:#7ecbff;
+  --deep:#3fa9f5;
+  --bg:#eaf6ff;
+  --text:#3a2a2a;
+}
+
+*{box-sizing:border-box;font-family:'Segoe UI',sans-serif}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+}
+
+/* HEADER */
+header{
+  background:linear-gradient(135deg,var(--sky),var(--deep));
+  color:white;
+  text-align:center;
+  padding:3rem 1rem;
+  position:relative;
+}
+
+header h1{margin:0;font-size:2.6rem}
+header p{margin-top:.6rem}
+
+.back-btn{
+  position:absolute;
+  left:1rem;
+  top:1rem;
+  background:rgba(255,255,255,.25);
+  border:none;
+  color:white;
+  padding:.6rem 1.1rem;
+  border-radius:50px;
+  cursor:pointer;
+  font-weight:bold;
+  display:none;
+  font-size:1rem;
+}
+
+/* PAGES */
+.page{display:none}
+.page.active{display:block}
+
+section{padding:3rem 1.5rem}
+h2{text-align:center;margin-bottom:2rem}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:1.6rem;
+}
+
+.card{
+  background:white;
+  border-radius:22px;
+  overflow:hidden;
+  box-shadow:0 15px 30px rgba(0,0,0,.1);
+  cursor:pointer;
+  transition:.4s;
+  position:relative;
+}
+
+.card::after{
+  content:"Add to Cart";
+  position:absolute;
+  inset:0;
+  background:rgba(63,169,245,.85);
+  color:white;
+  font-size:1.2rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:0;
+  transition:.4s;
+}
+
+.card.no-hover::after{content:none}
+
+.card:hover::after{opacity:1}
+.card:hover{
+  transform:translateY(-12px) scale(1.03);
+  box-shadow:0 25px 40px rgba(0,0,0,.18);
+}
+
+.card img{
+  width:100%;
+  height:160px;
+  object-fit:cover;
+  background:#dff1ff;
+}
+
+.card h3{margin:1rem}
+.price{
+  margin:0 1rem 1.2rem;
+  font-weight:bold;
+  color:var(--deep);
+}
+
+/* CATEGORY (HOME) CARDS */
+.cat-card{
+  background:white;
+  border-radius:26px;
+  overflow:hidden; /* Ensures the image follows the card's rounded corners */
+  box-shadow:0 15px 30px rgba(0,0,0,.12);
+  cursor:pointer;
+  transition:.4s;
+  text-align:center;
+  padding:0 0 2rem 0; /* Removed top/side padding so image hits the edges */
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.cat-card:hover{
+  transform:translateY(-10px) scale(1.03);
+  box-shadow:0 25px 40px rgba(0,0,0,.2);
+}
+
+/* Full-width image settings */
+.cat-card img{
+  width:100%;
+  height:180px; /* Adjust height here to change how tall the image block is */
+  object-fit:cover; /* Crops image cleanly inside its block boundaries */
+  background:#f0f8ff;
+}
+
+.cat-card h2{
+  margin:1.5rem 1rem 0;
+  font-size:1.6rem;
+}
+
+.cat-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:2rem;
+  max-width:700px;
+  margin:0 auto;
+}
+
+/* CART BUTTON */
+.cart-btn{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  background:var(--deep);
+  color:white;
+  padding:1rem 1.4rem;
+  border-radius:50px;
+  box-shadow:0 10px 25px rgba(0,0,0,.2);
+  cursor:pointer;
+  font-weight:bold;
+  z-index:50;
+}
+
+.cart-count{
+  background:red;
+  border-radius:50%;
+  padding:.2rem .55rem;
+  font-size:.75rem;
+  margin-left:.4rem;
+}
+
+/* MODAL */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.5);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:100;
+  padding:1rem;
+}
+
+.box{
+  background:white;
+  border-radius:22px;
+  padding:1.5rem;
+  width:90%;
+  max-width:420px;
+  max-height:85vh;
+  overflow-y:auto;
+  animation:pop .3s ease;
+}
+
+.close-btn{
+  float:right;
+  cursor:pointer;
+  font-weight:bold;
+  font-size:1.2rem;
+  padding:.2rem .5rem;
+}
+
+.cart-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin:.6rem 0;
+  gap:.6rem;
+}
+
+.cart-item .thumb{
+  width:36px;
+  height:36px;
+  border-radius:8px;
+  object-fit:cover;
+  flex-shrink:0;
+}
+
+.cart-item button{
+  padding:.4rem .7rem;
+  font-size:1rem;
+}
+
+textarea, input[type=text]{
+  width:100%;
+  padding:.7rem;
+  border-radius:12px;
+  border:1px solid #ccc;
+  margin:.6rem 0;
+  font-family:inherit;
+  font-size:1rem;
+}
+
+.photo-note{
+  font-size:0.9rem;
+  color:#666;
+  margin:0.8rem 0;
+  line-height:1.4;
+  background:#f0f8ff;
+  padding:0.8rem;
+  border-radius:12px;
+  border-left:4px solid var(--deep);
+}
+
+.preview{
+  width:100%;
+  max-height:180px;
+  object-fit:cover;
+  border-radius:14px;
+  display:none;
+  margin-bottom:.6rem;
+}
+
+button{
+  padding:.7rem 1.4rem;
+  border:none;
+  border-radius:50px;
+  background:var(--deep);
+  color:white;
+  font-size:1rem;
+  cursor:pointer;
+}
+
+.actions{
+  display:flex;
+  justify-content:space-between;
+  margin-top:.6rem;
+  gap:.6rem;
+}
+
+.qty-badge{
+  font-size:.75rem;
+  color:var(--deep);
+  font-weight:bold;
+}
+
+/* ANIMATION */
+@keyframes pop{
+  from{transform:scale(.85);opacity:0}
+  to{transform:scale(1);opacity:1}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <button class="back-btn" id="backBtn" onclick="goBack()">← Back</button>
+  <h1>Frío Cakes</h1>
+  <p>Tap a treat to add ☁️🧁</p>
+</header>
+
+<!-- ================= HOME PAGE ================= -->
+<div class="page active" id="page-home">
+<section>
+<h2>Choose a Category</h2>
+<div class="cat-grid">
+  <div class="cat-card" onclick="openCategory('cupcake')">
+    <img src="c1.jpg">
+    <h2>Cup Cakes</h2>
+  </div>
+  <div class="cat-card" onclick="openCategory('cake')">
+    <img src="c2.jpg">
+    <h2>Cakes</h2>
+  </div>
+</div>
+</section>
+</div>
+
+<!-- ================= CUPCAKES PAGE ================= -->
+<div class="page" id="page-cupcake">
+<section>
+<h2>Our Cupcakes</h2>
+<div class="grid">
+
+  <div class="card" onclick="addItem('Chocolate Cupcake',350)">
+    <img src="chocolatecupcake.webp">
+    <h3>Chocolate Cupcake</h3>
+    <div class="price">Rs. 350</div>
+  </div>
+
+  <div class="card" onclick="addItem('Vanilla Cupcake',300)">
+    <img src="vanilacc.jpg">
+    <h3>Vanilla Cupcake</h3>
+    <div class="price">Rs. 300</div>
+  </div>
+
+  <div class="card" onclick="addItem('Strawberry Cupcake',330)">
+    <img src="strawberrycc.webp">
+    <h3>Strawberry Cupcake</h3>
+    <div class="price">Rs. 330</div>
+  </div>
+
+  <div class="card no-hover" onclick="navigateTo('page-other-cupcake')">
+    <img src="02.jpg">
+    <h3>Other Choices</h3>
+    <div class="price">More flavors & custom designs</div>
+  </div>
+
+</div>
+</section>
+</div>
+
+<!-- ================= CAKES PAGE ================= -->
+<div class="page" id="page-cake">
+  <section>
+  <h2>Our Cakes</h2>
+  <div class="grid">
+    <div class="card" onclick="addItem('Chocolate Cake',1800)">
+      <img src="04.jpg">
+      <h3>Chocolate Cake</h3>
+      <div class="price">Rs. 1800</div>
+    </div>
+
+    <div class="card" onclick="addItem('Vanilla Cake',1600)">
+      <img src="05.jpg">
+      <h3>Vanilla Cake</h3>
+      <div class="price">Rs. 1600</div>
+    </div>
+
+    <div class="card" onclick="addItem('Strawberry Cake',1700)">
+      <img src="tt.jpg">
+      <h3>Strawberry Cake</h3>
+      <div class="price">Rs. 1700</div>
+    </div>
+
+    <div class="card" onclick="addItem('Bento Cake',900)">
+      <img src="bento cake.jpg">
+      <h3>Bento Cake</h3>
+      <div class="price">Rs. 900</div>
+    </div>
+
+    <div class="card no-hover" onclick="navigateTo('page-other-cake')">
+      <img src="03.jpg">
+      <h3>Other Choices</h3>
+      <div class="price">More flavors & custom designs</div>
+    </div>
+
+  </div>
+  </section>
+</div>
+
+<!-- ================= OTHER CUPCAKE CHOICES PAGE ================= -->
+<div class="page" id="page-other-cupcake">
+  <section>
+  <h2>Other Cupcake Choices</h2>
+  <div class="grid">
+
+    <div class="card" onclick="addItem('Red Velvet Cupcake',360)">
+      <img src="vel.jpg">
+      "<h3>Red Velvet Cupcake</h3>
+      <div class="price">Rs. 360</div>
+    </div>
+
+    <div class="card" onclick="addItem('Lemon Cupcake',320)">
+      <img src="lemon.jpg">
+      <h3>Lemon Cupcake</h3>
+      <div class="price">Rs. 320</div>
+    </div>
+
+    <div class="card" onclick="addItem('Oreo Cupcake',350)">
+      <img src="oreo.webp">
+      <h3>Oreo Cupcake</h3>
+      <div class="price">Rs. 350</div>
+    </div>
+
+    <div class="card no-hover" onclick="openCustom('cupcake')">
+      <img src="yr1.jpg">
+      <h3>Your Choice</h3>
+      <div class="price">Design your own cupcake</div>
+    </div>
+
+  </div>
+  </section>
+</div>
+
+<!-- ================= OTHER CAKE CHOICES PAGE ================= -->
+<div class="page" id="page-other-cake">
+  <section>
+  <h2>Other Cake Choices</h2>
+  <div class="grid">
+
+    <div class="card" onclick="addItem('Red Velvet Cake',1900)">
+      <img src="redvel.jpg"><h3>Red Velvet Cake</h3>
+      <div class="price">Rs. 1900</div>
+    </div>
+
+    <div class="card" onclick="addItem('Butterscotch Cake',1750)">
+      <img src="06.jpg">
+      <h3>Butterscotch Cake</h3>
+      <div class="price">Rs. 1750</div>
+    </div>
+
+    <div class="card" onclick="addItem('Black Forest Cake',1850)">
+      <img src="blackforest.jpg">
+      <h3>Black Forest Cake</h3>
+      <div class="price">Rs. 1850</div>
+    </div>
+
+    <div class="card no-hover" onclick="openCustom('cake')">
+      <img src="03.jpg">
+      <h3>Your Choice</h3>
+      <div class="price">Design your own cake</div>
+    </div>
+
+  </div>
+  </section>
+</div>
+
+<!-- CART BUTTON -->
+<div class="cart-btn" onclick="openCart()">
+  🛒 Cart <span class="cart-count" id="count">0</span>
+</div>
+
+<!-- ================= CUSTOM DESIGN MODAL ================= -->
+<div class="modal" id="customModal">
+  <div class="box">
+    <span class="close-btn" onclick="closeCustom()">✖</span>
+    <h3 id="customTitle">Your Choice</h3>
+
+    <img id="customPreview" class="preview">
+
+    <input type="text" id="customName" placeholder="Describe your design (e.g. Red rose theme)">
+    <div class="photo-note">📸 Note: Please send your reference photo in the WhatsApp chat after sending your order message.</div>
+
+    <div class="actions">
+      <button onclick="closeCustom()">Cancel</button>
+      <button onclick="addCustomItem()">Add to Cart</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= CART MODAL ================= -->
+<div class="modal" id="cartModal">
+  <div class="box">
+    <span class="close-btn" onclick="closeCart()">✖</span>
+    <h3>Your Cart</h3>
+    <div id="cartItems"></div>
+
+    <textarea id="address" placeholder="Delivery Address"></textarea>
+
+    <div class="actions">
+      <button onclick="clearCart()">Clear Cart</button>
+      <button onclick="checkout()">Place Order</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const phone = "94781273840"; // CHANGE TO REAL NUMBER
+let cart = {};
+let customCategory = null;
+let customImageData = null;
+
+/* ---------- PAGE NAVIGATION ---------- */
+/* ---------- PAGE NAVIGATION ---------- */
+let pageHistory = [];
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function navigateTo(id){
+  const current = document.querySelector('.page.active').id;
+  pageHistory.push(current);
+  showPage(id);
+  document.getElementById('backBtn').style.display = 'inline-block';
+}
+
+function openCategory(cat){
+  navigateTo('page-' + cat);
+}
+
+function goBack(){
+  const prev = pageHistory.pop();
+  if(prev){
+    showPage(prev);
+  } else {
+    showPage('page-home');
+  }
+  if(pageHistory.length === 0){
+    document.getElementById('backBtn').style.display = 'none';
+  }
+}
+
+/* ---------- CUSTOM DESIGN MODAL ---------- */
+function openCustom(cat){
+  customCategory = cat;
+  customImageData = null;
+  document.getElementById('customTitle').innerText =
+    cat === 'cupcake' ? 'Design Your Cupcake' : 'Design Your Cake';
+  document.getElementById('customName').value = '';
+  document.getElementById('customPreview').style.display = 'none';
+  document.getElementById('customModal').style.display = 'flex';
+}
+
+function closeCustom(){
+  document.getElementById('customModal').style.display = 'none';
+}
+
+function addCustomItem(){
+  const desc = document.getElementById('customName').value.trim();
+  if(!desc){
+    alert("Please describe your design");
+    return;
+  }
+
+  const label = (customCategory === 'cupcake' ? 'Custom Cupcake' : 'Custom Cake') + " - " + desc;
+  const key = label + "_" + Date.now(); // unique key per custom order
+
+  cart[key] = {
+    price: 0,
+    qty: 1,
+    label: label,
+    image: customImageData,
+    custom: true
+  };
+
+  updateCount();
+  closeCustom();
+  alert("Added! Price will be confirmed with you over WhatsApp after you place the order.");
+}
+
+/* ---------- STANDARD ITEMS ---------- */
+function addItem(name, price){
+  if(cart[name] && !cart[name].custom){
+    cart[name].qty++;
+  } else {
+    cart[name] = {price, qty:1, label:name, image:null, custom:false};
+  }
+  updateCount();
+}
+
+function updateCount(){
+  let count = 0;
+  for(let i in cart) count += cart[i].qty;
+  document.getElementById("count").innerText = count;
+}
+
+/* ---------- CART ---------- */
+function openCart(){
+  let html = "";
+  let total = 0;
+
+  for(let key in cart){
+    const c = cart[key];
+    total += c.qty * c.price;
+
+    html += `
+      <div class="cart-item">
+        ${c.image ? `<img class="thumb" src="${c.image}">` : ''}
+        <div style="flex:1">
+          ${c.label} (x${c.qty})
+          ${c.custom ? '<div class="qty-badge">Price on confirmation</div>' : ''}
+        </div>
+        <div>
+          <button onclick="changeQty('${key}',1)">+</button>
+          <button onclick="changeQty('${key}',-1)">−</button>
+        </div>
+      </div>`;
+  }
+
+  if(!html) html = "Your cart is empty";
+
+  html += `<hr><b>Total: Rs. ${total}${Object.values(cart).some(c=>c.custom) ? ' + custom item(s)' : ''}</b>`;
+  document.getElementById("cartItems").innerHTML = html;
+  document.getElementById("cartModal").style.display = "flex";
+}
+
+/* ---------- FALLBACK CLOSING TAG COMPLIANCE ---------- */
+function closeCart(){
+  document.getElementById("cartModal").style.display = "none";
+}
+
+function changeQty(key, delta){
+  cart[key].qty += delta;
+  if(cart[key].qty <= 0) delete cart[key];
+  updateCount();
+  openCart();
+}
+
+function clearCart(){
+  cart = {};
+  updateCount();
+  openCart();
+}
+
+/* ---------- CHECKOUT ---------- */
+async function checkout(){
+  const address = document.getElementById("address").value.trim();
+  if(!address){
+    alert("Please enter delivery address");
+    return;
+  }
+
+  if(Object.keys(cart).length === 0){
+    alert("Your cart is empty");
+    return;
+  }
+
+  let message = "Hi! I’d like to place an order:\n\n";
+  let total = 0;
+  let customImages = [];
+
+  for(let key in cart){
+    const c = cart[key];
+    total += c.qty * c.price;
+    if(c.custom){
+      message += `${c.label} – ${c.qty} × (custom, price to be confirmed)\n`;
+      if(c.image) customImages.push(c.image);
+    } else {
+      message += `${c.label} – ${c.qty} × Rs. ${c.price}\n`;
+    }
+  }
+
+  message += `\nSubtotal (standard items): Rs. ${total}`;
+  message += `\n\nDelivery Address:\n${address}`;
+
+  // Try sharing with the image attached (works on most modern mobile browsers)
+  if(customImages.length > 0 && navigator.canShare){
+    try{
+      const files = await Promise.all(customImages.map(async (dataUrl, i) => {
+        const res = await fetch(dataUrl);
+        const blob = await res.blob();
+        return new File([blob], `design-${i+1}.jpg`, {type: blob.type || "image/jpeg"});
+      }));
+
+      if(navigator.canShare({ files, text: message })){
+        await navigator.share({ files, text: message });
+        cart = {};
+        updateCount();
+        closeCart();
+        return;
+      }
+    }catch(err){
+      console.log("Share cancelled or unsupported, falling back:", err);
+    }
+  }
+
+  // Fallback: plain WhatsApp link (text only)
+  const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+  window.open(url, "_blank");
+
+  cart = {};
+  updateCount();
+  closeCart();
+
+  // On-screen reminder (NOT part of the WhatsApp message) — only needed
+  // when we couldn't auto-attach the reference photo(s).
+  if(customImages.length > 0){
+    setTimeout(() => {
+      alert("Your order message has been opened in WhatsApp. Please also attach and send your reference photo(s) in that same chat now.");
+    }, 500);
+  }
+}
+</script>
+
+</body>
+</html>
